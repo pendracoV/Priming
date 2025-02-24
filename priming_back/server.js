@@ -31,7 +31,7 @@ const verifyToken = (req, res, next) => {
 // Registro de usuario
 app.post('/api/register', async (req, res) => {
     try {
-        const { nombre, edad, grado, colegio, jornada, correo_electronico, contrasena, tipo_usuario } = req.body;
+        const { nombre, codigo,tipo , correo_electronico, contrasena, tipo_usuario } = req.body;
 
         console.log('📩 Datos recibidos en el backend:', req.body);
 
@@ -42,16 +42,6 @@ app.post('/api/register', async (req, res) => {
         if (!correo_electronico || typeof correo_electronico !== 'string' || correo_electronico.trim() === '') {
             return res.status(400).json({ error: "El correo electrónico es inválido o está vacío" });
         }
-        if (!grado || isNaN(grado) || grado < 0 || grado > 3) {
-            return res.status(400).json({ error: "El grado debe estar entre 0 y 3" });
-        }
-        if (!edad || isNaN(edad) || edad < 5 || edad > 7) {
-            return res.status(400).json({ error: "La edad debe estar entre 5 y 7 años" });
-        }
-        if (!jornada || !["mañana", "tarde"].includes(jornada)) {
-            return res.status(400).json({ error: "La jornada debe ser 'mañana' o 'tarde'" });
-        }
-
         // Verificar si el correo ya existe
         const correoExistente = await pool.query('SELECT id FROM usuarios WHERE correo_electronico = $1', [correo_electronico]);
         if (correoExistente.rows.length > 0) {
@@ -78,8 +68,8 @@ app.post('/api/register', async (req, res) => {
         
             // Insertar datos del niño
             await client.query(
-                'INSERT INTO ninos (usuario_id, edad, grado, colegio, jornada) VALUES ($1, $2, $3, $4, $5)',
-                [userId, edad, grado, colegio, jornada]
+                'INSERT INTO evaluadores (usuario_id, codigo, tipo) VALUES ($1, $2, $3)',
+                [userId, codigo,tipo ]
             );
         
             // Confirmar transacción

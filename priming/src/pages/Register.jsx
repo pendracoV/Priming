@@ -7,13 +7,11 @@ const Register = () => {
 
     const [formData, setFormData] = useState({
         nombre: '',
-        edad: '5',
-        grado: '0',
-        colegio: '',
-        jornada: 'mañana',
+        codigo:'',
+        tipo:'',
         correo_electronico: '',
         contrasena: '',
-        tipo_usuario: 'niño'
+        tipo_usuario: 'evaluador'
     });
 
     const handleChange = (e) => {
@@ -34,10 +32,7 @@ const Register = () => {
             alert("El nombre es obligatorio");
             return;
         }
-        if (!formData.colegio.trim()) {
-            alert("El colegio es obligatorio");
-            return;
-        }
+
         if (!formData.correo_electronico.trim()) {
             alert("El correo electrónico es obligatorio");
             return;
@@ -64,35 +59,23 @@ const Register = () => {
                 required 
             />
 
-            <label>Edad: </label>
-            <select name="edad" value={formData.edad} onChange={handleChange}>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
+            <label>Tipo: </label>
+            <select name="tipo" value={formData.tipo} onChange={handleChange}>
+                <option value="Psicologo">Psiscologo</option>
+                <option value="Pasante">Pasante</option>
+                <option value="Adulto">Adulto</option>
             </select>
 
-            <label>Grado: </label>
-            <select name="grado" value={formData.grado} onChange={handleChange}>
-                <option value="0">0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-            </select>
 
             <input 
                 type="text" 
-                name="colegio" 
-                placeholder="Colegio" 
-                value={formData.colegio} 
+                name="codigo" 
+                placeholder="codigo" 
+                value={formData.codigo} 
                 onChange={handleChange} 
                 required 
             />
 
-            <label>Jornada: </label>
-            <select name="jornada" value={formData.jornada} onChange={handleChange}>
-                <option value="mañana">Mañana</option>
-                <option value="tarde">Tarde</option>
-            </select>
 
             <input 
                 type="email" 
