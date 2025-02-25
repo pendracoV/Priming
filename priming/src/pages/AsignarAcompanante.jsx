@@ -6,11 +6,15 @@ import { useNavigate } from "react-router-dom";
 const AsignarEvaluador = () => {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
-    const [evaluador, setEvaluador] = useState({
-        nombre: "",
-        tipo_documento: "CC",
-        codigo: "",
-        tipo: "Estudiante",
+    const [nino, setNino] = useState({
+        nombre:"",
+        correo_electronico:"",
+        tipo_usuario: "niño",
+        contrasena:"",
+        edad:"",
+        grado:"",
+        colegio:"",
+        jornada:"",
     });
 
     // Verificar si el usuario está autenticado
@@ -22,7 +26,7 @@ const AsignarEvaluador = () => {
 
     // Manejar cambio en los campos del formulario
     const handleChange = (e) => {
-        setEvaluador({ ...evaluador, [e.target.name]: e.target.value });
+        setNino({ ...nino, [e.target.name]: e.target.value });
     };
 
     // Enviar la asignación del acompañante al backend
@@ -45,12 +49,13 @@ const AsignarEvaluador = () => {
 
     
         const datosEnviados = {
-            nino_id: user?.id,  
-            usuario_id: user?.id, 
-            nombre: evaluador.nombre,
-            tipo_documento: evaluador.tipo_documento,
-            codigo: evaluador.codigo,
-            tipo: evaluador.tipo
+            nombre: nino.nombre,
+            correo_electronico: nino.correo_electronico, 
+            contrasena: nino.contrasena,
+            edad: parseInt(nino.edad),
+            grado: parseInt(nino.grado),
+            colegio: nino.colegio,
+            jornada: nino.jornada,
         };
 
         console.log("📩 Datos enviados al backend:", datosEnviados);
@@ -77,34 +82,63 @@ const AsignarEvaluador = () => {
                     type="text" 
                     name="nombre" 
                     placeholder="Ingrese el nombre" 
-                    value={evaluador.nombre} 
+                    value={nino.nombre} 
                     onChange={handleChange} 
                     required 
                 />
 
-                <label>Tipo de Documento:</label>
-                <select name="tipo_documento" value={evaluador.tipo_documento} onChange={handleChange} required>
-                    <option value="CC">Cédula de Ciudadanía</option>
-                    <option value="CE">Codigo de estudiante</option>
-                    <option value="CEG">Codigo de egresado</option>
+                <label>Edad: </label>
+                <select name="edad" value={nino.edad} onChange={handleChange} required>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
                 </select>
 
-                <label>Número de Documento:</label>
+                <label>Grado: </label>
+                <select name="grado" value={nino.grado} onChange={handleChange} required>
+                    <option value="0">Prescolar</option>
+                    <option value="1">Primero</option>
+                    <option value="2">Segundo</option>
+                </select>
+
+                <label>Jornada: </label>
+                <select name="jornada" value={nino.jornada} onChange={handleChange} required>
+                    <option value="mañana">Mañana</option>
+                    <option value="tarde">Tarde</option>
+                    <option value="Continua">Continua</option>
+                </select>
+
+                <label>Colegio: </label>
                 <input 
                     type="text" 
-                    name="codigo" 
-                    placeholder="Ingrese el código" 
-                    value={evaluador.codigo} 
+                    name="colegio" 
+                    placeholder="Ingrese el nombre del Colegio" 
+                    value={nino.colegio} 
                     onChange={handleChange} 
                     required 
                 />
 
-                <label>Tipo de Acompañante:</label>
-                <select name="tipo" value={evaluador.tipo} onChange={handleChange} required>
-                    <option value="Estudiante">Estudiante</option>
-                    <option value="Docente">Docente</option>
-                    <option value="Egresado">Egresado</option>
-                </select>
+                <label>Correo: </label>
+
+                <input 
+                    type="email" 
+                    name="correo_electronico" 
+                    placeholder="Ingrese el nombre del colegio" 
+                    value={nino.correo_electronico} 
+                    onChange={handleChange} 
+                    required 
+                />
+
+                <label>Contraseña: </label>
+                <input 
+                    type="password" 
+                    name="contrasena" 
+                    placeholder="Contraseña" 
+                    value={nino.contrasena} 
+                    onChange={handleChange} 
+                    required 
+                />
+
 
                 <button type="submit">Asignar Acompañante</button>
             </form>

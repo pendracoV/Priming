@@ -28,10 +28,10 @@ const verifyToken = (req, res, next) => {
     }
 };
 
-// Registro de usuario
+// Registro de usuario (endpoint original)
 app.post('/api/register', async (req, res) => {
     try {
-        const { nombre, codigo,tipo , correo_electronico, contrasena, tipo_usuario } = req.body;
+        const { nombre, codigo, tipo, correo_electronico, contrasena, tipo_usuario } = req.body;
 
         console.log('📩 Datos recibidos en el backend:', req.body);
 
@@ -66,10 +66,10 @@ app.post('/api/register', async (req, res) => {
         
             const userId = usuarioResult.rows[0].id;
         
-            // Insertar datos del niño
+            // Insertar datos del evaluador (según tu flujo original)
             await client.query(
                 'INSERT INTO evaluadores (usuario_id, codigo, tipo) VALUES ($1, $2, $3)',
-                [userId, codigo,tipo ]
+                [userId, codigo, tipo]
             );
         
             // Confirmar transacción
@@ -140,31 +140,56 @@ app.get('/api/user', verifyToken, async (req, res) => {
 });
 
 
+
 app.post('/api/asignar-evaluador', verifyToken, async (req, res) => {
     try {
-        console.log("📩 Datos recibidos en el backend:", req.body); // 🛠️ Verificar qué datos llegan
+        console.log("📩 Datos recibidos en el backend:", req.body);
 
-        const { nino_id, usuario_id, nombre, tipo_documento, codigo, tipo } = req.body;
 
-        if (!nino_id || !usuario_id) {
-            console.error("❌ Faltan datos: `nino_id` o `usuario_id` no pueden ser nulos");
-            return res.status(400).json({ error: "Faltan datos: `nino_id` o `usuario_id` no pueden ser nulos" });
+        const { nombre, correo_electronico, contrasena, edad, grado, colegio, jornada } = req.body;
+
+
+        if (!nombre || !correo_electronico || !contrasena || !edad || !grado || !colegio || !jornada) {
+            return res.status(400).json({ error: "Faltan datos obligatorios." });
         }
 
-        // Verificar si el código ya está registrado
-        const codigoExistente = await pool.query('SELECT usuario_id FROM evaluadores WHERE codigo = $1', [codigo]);
-        if (codigoExistente.rows.length > 0) {
-            return res.status(400).json({ error: "El código ya está registrado con otro acompañante" });
+
+        const correoExistente = await pool.query('SELECT id FROM usuarios WHERE correo_electronico = $1', [correo_electronico]);
+        if (correoExistente.rows.length > 0) {
+            return res.status(400).json({ error: "El correo electrónico ya está registrado." });
         }
 
-        // Insertar nuevo evaluador con `usuario_id` y `nino_id`
-        const result = await pool.query(
-            'INSERT INTO evaluadores (usuario_id, nino_id, nombre, tipo_documento, codigo, tipo) VALUES ($1, $2, $3, $4, $5, $6) RETURNING usuario_id',
-            [usuario_id, nino_id, nombre, tipo_documento, codigo, tipo]
-        );
 
-        res.json({ message: "✅ Acompañante asignado correctamente", usuarioId: result.rows[0].usuario_id });
+        const hashedPassword = await bcrypt.hash(contrasena.trim(), 10);
 
+
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+ 
+
+            const usuarioResult = await client.query(
+                'INSERT INTO usuarios (nombre, correo_electronico, contrasena, tipo_usuario) VALUES ($1, $2, $3, $4) RETURNING id',
+                [nombre, correo_electronico, hashedPassword, "niño"]
+            );
+            const nuevoUsuarioId = usuarioResult.rows[0].id;
+ 
+
+            const ninoResult = await client.query(
+                'INSERT INTO ninos (usuario_id, edad, grado, colegio, jornada) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+                [nuevoUsuarioId, edad, grado, colegio, jornada]
+            );
+ 
+            await client.query('COMMIT');
+            client.release();
+ 
+            res.status(201).json({ message: "Niño registrado exitosamente", ninoId: ninoResult.rows[0].id });
+        } catch (error) {
+            await client.query('ROLLBACK');
+            client.release();
+            console.error("❌ Error registrando niño:", error);
+            res.status(500).json({ error: "Error registrando niño" });
+        }
     } catch (error) {
         console.error("❌ Error asignando acompañante:", error);
         res.status(500).json({ error: "Error asignando acompañante" });
@@ -172,6 +197,6 @@ app.post('/api/asignar-evaluador', verifyToken, async (req, res) => {
 });
 
 
-// Servidor corriendo
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`));

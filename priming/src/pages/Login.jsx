@@ -16,7 +16,7 @@ const Login = () => {
         e.preventDefault();
         try {
             const res = await axios.post(`${import.meta.env.VITE_API_URL}/login`, formData);
-            login(res.data.token, res.data);
+            login(res.data.token, res.data.user);
             navigate("/asignar-acompanante");
         } catch (error) {
             alert("Error en el inicio de sesión");
