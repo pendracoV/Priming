@@ -1,7 +1,19 @@
 import { useState, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { Form, useNavigate } from "react-router-dom";
+import {
+    GlobalStyle,
+    Container,
+    FormContainer,
+    Container2,
+    Input,
+    Select,
+    Button,
+    H1,
+    Label,
+    A
+} from '../styles/styles';
 
 const Login = () => {
     const { login } = useContext(AuthContext);
@@ -24,11 +36,23 @@ const Login = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <input type="email" name="correo_electronico" placeholder="Correo" onChange={handleChange} required />
-            <input type="password" name="contrasena" placeholder="Contraseña" onChange={handleChange} required />
-            <button type="submit">Iniciar Sesión</button>
-        </form>
+        <>
+        <GlobalStyle />
+        <Container>
+            <FormContainer>
+                <Container2>
+                    <H1>PRIMING</H1>
+                    <form onSubmit={handleSubmit}>
+                        <Input type="email" name="correo_electronico" placeholder="Correo" onChange={handleChange} required />
+                        <Input type="password" name="contrasena" placeholder="Contraseña" onChange={handleChange} required />
+                        <Button type="submit">Iniciar Sesión</Button>
+                    </form>
+                    <Label>¿No tienes una cuenta? <A href="/register">REGISTRATE</A></Label>
+                </Container2>
+            </FormContainer>
+        </Container>
+
+        </>
     );
 };
 

@@ -51,6 +51,7 @@ app.post('/api/register', async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(contrasena.trim(), 10);
         console.log('🔑 Contraseña encriptada:', hashedPassword);
+        console.log("🔍 Tipo recibido en backend:", req.body.tipo ?? "No recibido");
 
 
         const client = await pool.connect();

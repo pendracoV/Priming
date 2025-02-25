@@ -2,6 +2,49 @@ import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import {
+  GlobalStyle,
+  Input,
+  Select,
+  Button,
+  H1,
+  Label,
+  A,
+  LogoutButton
+} from '../styles/styles';
+
+
+export const Container = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 100vh; 
+    margin: 0;
+    padding: 0;
+    overflow: auto; 
+    background: url('/images/image.png') no-repeat center center / cover;
+
+`;
+export const FormContainer = styled.div`
+    background: rgba(0, 0, 0, 0.5);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 550px;
+    text-align: center;
+    padding: 50px;
+    margin: 20px; 
+`;
+
+export const Container2 = styled.div`
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+`;
 
 const AsignarEvaluador = () => {
   const { user, logout } = useContext(AuthContext);
@@ -108,11 +151,17 @@ const AsignarEvaluador = () => {
   };
 
   return (
-    <div>
-      <h2>Asignar Acompañante</h2>
+    <>
+      <GlobalStyle />
+      <Container>
+        <FormContainer>
+          <Container2>
+      
+    
+      <H1>Asignar Acompañante</H1>
 
       <form onSubmit={handleSubmit}>
-        <input
+        <Input
           type="text"
           name="nombre"
           placeholder="Ingrese el nombre"
@@ -121,32 +170,32 @@ const AsignarEvaluador = () => {
           required
         />
 
-        <label>Edad: </label>
-        <select name="edad" value={nino.edad} onChange={handleChange} required>
+        
+        <Select name="edad" value={nino.edad} onChange={handleChange} required>
           <option value="">Seleccione edad</option>
           <option value="5">5</option>
           <option value="6">6</option>
           <option value="7">7</option>
-        </select>
+        </Select>
 
-        <label>Grado: </label>
-        <select name="grado" value={nino.grado} onChange={handleChange} required>
+        
+        <Select name="grado" value={nino.grado} onChange={handleChange} required>
           <option value="">Seleccione grado</option>
           <option value="0">Prescolar</option>
           <option value="1">Primero</option>
           <option value="2">Segundo</option>
-        </select>
+        </Select>
 
-        <label>Jornada: </label>
-        <select name="jornada" value={nino.jornada} onChange={handleChange} required>
+        
+        <Select name="jornada" value={nino.jornada} onChange={handleChange} required>
           <option value="">Seleccione jornada</option>
           <option value="mañana">Mañana</option>
           <option value="tarde">Tarde</option>
           <option value="Continua">Continua</option>
-        </select>
+        </Select>
 
-        <label>Colegio: </label>
-        <input
+       
+        <Input
           type="text"
           name="colegio"
           placeholder="Ingrese el nombre del Colegio"
@@ -155,8 +204,8 @@ const AsignarEvaluador = () => {
           required
         />
 
-        <label>Correo: </label>
-        <input
+       
+        <Input
           type="email"
           name="correo_electronico"
           placeholder="Ingrese el correo electrónico"
@@ -165,8 +214,8 @@ const AsignarEvaluador = () => {
           required
         />
 
-        <label>Contraseña: </label>
-        <input
+        
+        <Input
           type="password"
           name="contrasena"
           placeholder="Contraseña"
@@ -175,7 +224,7 @@ const AsignarEvaluador = () => {
           required
         />
 
-        <button type="submit">Asignar Acompañante</button>
+        <Button type="submit">Asignar Acompañante</Button>
       </form>
 
       <h3>Niños asignados</h3>
@@ -191,8 +240,14 @@ const AsignarEvaluador = () => {
         </ul>
       )}
 
-      <button onClick={logout}>Cerrar Sesión</button>
-    </div>
+      
+    
+        </Container2>
+      </FormContainer>
+      <LogoutButton onClick={logout}>Cerrar Sesión</LogoutButton>
+    </Container>
+    
+    </>
   );
 };
 
