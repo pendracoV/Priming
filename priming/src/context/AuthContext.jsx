@@ -1,44 +1,78 @@
-import { createContext, useState, useEffect } from "react";
-import axios from "axios";
+import React, { createContext, useState, useEffect } from 'react';
+import axios from 'axios';
 
+// Creamos el contexto
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+  // Estado para el usuario autenticado
+  const [user, setUser] = useState(null);
+  // Estado para indicar si la autenticación está siendo verificada
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            axios.get(`${import.meta.env.VITE_API_URL}/user`, {
-                headers: { Authorization: token }
-            })
-            .then(response => setUser(response.data))
-            .catch(() => {
-                localStorage.removeItem("token");
-                setUser(null);
-            })
-            .finally(() => setLoading(false));
-        } else {
-            setLoading(false);
+  // Función para iniciar sesión
+  const login = (token, userData) => {
+    localStorage.setItem('token', token);
+    setUser(userData);
+  };
+
+  // Función para cerrar sesión
+  const logout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+  };
+
+  // Verificar si hay un token al cargar la aplicación
+  useEffect(() => {
+    const verifyToken = async () => {
+      const token = localStorage.getItem('token');
+      
+      if (token) {
+        try {
+          // Verificar el token con el backend usando la ruta correcta
+          const response = await axios.get(
+            `${import.meta.env.VITE_API_URL}/verify-token`, 
+            { headers: { Authorization: token } }
+          );
+          
+          // Si el token es válido, establecer el usuario
+          if (response.data.valid) {
+            setUser(response.data.user);
+          } else {
+            // Si el token no es válido, eliminar el token
+            logout();
+          }
+        } catch (error) {
+          console.error('Error verificando token:', error);
+          logout();
         }
-    }, []);
-
-
-    
-    const login = (token, userData) => {
-        localStorage.setItem("token", token);
-        setUser(userData);
+      }
+      
+      // Indicar que la verificación ha terminado
+      setLoading(false);
     };
 
-    const logout = () => {
-        localStorage.removeItem("token");
-        setUser(null);
-    };
+    verifyToken();
+  }, []);
 
-    return (
-        <AuthContext.Provider value={{ user, login, logout, loading }}>
-            {children}
-        </AuthContext.Provider>
-    );
+  // Proporcionar el contexto de autenticación a los componentes hijos
+  return (
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
+      {/* Mostrar los hijos solo cuando la verificación de autenticación haya terminado */}
+      {!loading ? children : 
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          height: '100vh',
+          background: 'rgba(0, 0, 0, 0.8)',
+          color: '#ffffff',
+          fontSize: '1.2rem',
+          fontWeight: 'bold'
+        }}>
+          Cargando...
+        </div>
+      }
+    </AuthContext.Provider>
+  );
 };

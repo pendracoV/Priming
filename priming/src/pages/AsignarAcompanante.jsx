@@ -401,7 +401,7 @@ const AsignarEvaluador = () => {
 
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/asignar-evaluador`,
+        `${import.meta.env.VITE_API_URL}/evaluador/asignar-nino`,
         datosEnviados,
         { headers: { Authorization: token } }
       );
@@ -489,18 +489,7 @@ const AsignarEvaluador = () => {
       <GlobalStyle />
       
       {/* Navbar fuera del Container */}
-      <Navbar 
-        logoSrc="../images/logo.png"
-        appName="PRIMING"
-        links={[
-          { text: 'Inicio', url: '/' },
-          { text: 'Servicios', url: '/servicios' },
-          { text: 'Acerca de', url: '/acerca' },
-          { text: 'Contacto', url: '/contacto' },
-          { text: 'Cerrar Sesión', onClick: handleLogout }
-        ]}
-        user={{ name: user?.nombre || 'Usuario', avatar: '/avatar.jpg' }}
-      />
+      <Navbar />
 
       <Container>
         <FormContainer>
