@@ -17,7 +17,7 @@ import { FaEye, FaEyeSlash, FaExclamationTriangle } from 'react-icons/fa';
 // Estilos existentes
 export const PasswordInput = styled(Input)`
   padding-right: 40px;
-  border: ${props => props.error ? '1px solid #ff6b6b' : '1px solid #ddd'};
+  border: ${props => props.error ? '1px solidrgb(255, 255, 255)' : '1px solid #ddd'};
 `;
 
 export const InputContainer = styled.div`
@@ -65,15 +65,15 @@ export const ErrorIcon = styled.span`
   margin-right: 5px;
   display: inline-flex;
   align-items: center;
-  color: #ff6b6b;
+  color:rgb(255, 255, 255);
 `;
 
 export const StyledInput = styled(Input)`
-  border: ${props => props.error ? '1px solid #ff6b6b' : '1px solid #ddd'};
+  border: ${props => props.error ? '1px solidrgb(255, 255, 255)' : '1px solid #ddd'};
 `;
 
 export const RegisterLink = styled(Link)`
-  color: #fc7500;
+  color:rgb(255, 255, 255);
   text-decoration: none;
   font-weight: bold;
   
@@ -217,7 +217,7 @@ const Login = () => {
                     </PasswordContainer>
                     
                     {errors.general && (
-                        <div style={{ color: '#ff6b6b', marginBottom: '1rem', textAlign: 'center' }}>
+                        <div style={{ color: 'rgb(255, 255, 255)', marginBottom: '1rem', textAlign: 'center' }}>
                             <FaExclamationTriangle style={{ marginRight: '5px' }} />
                             {errors.general}
                         </div>
