@@ -302,7 +302,8 @@ const Navbar = () => {
       return [
         { path: '/', label: 'Inicio' },
         { path: '/asignar-nino', label: 'Asignar Niño' },
-        { path: '/resultados', label: 'Resultados' }
+        { path: '/resultados', label: 'Resultados' },
+        { path: '/ninoslist', label: 'Asignaciones' }
       ];
     }
 

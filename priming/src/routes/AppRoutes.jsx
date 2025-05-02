@@ -9,6 +9,13 @@ import Register from '../pages/Register';
 // Páginas protegidas/privadas
 import AsignarAcompanante from '../pages/AsignarAcompanante';
 import Perfil from '../pages/Perfil';
+import NinosList from '../pages/NinosListPage';
+import SeleccionMundos from '../Game/SeleccionMundos';
+
+// Componentes del juego
+import NivelCognados from '../Game/levels/NivelCognados';
+import NivelParesMinimos from '../Game/levels/NivelParesMinimos';
+import Encuesta from '../Game/Encuesta';
 
 // Componente de protección de rutas privadas
 const PrivateRoute = () => {
@@ -72,6 +79,13 @@ const AppRoutes = () => {
           {/* Rutas para evaluadores */}
           <Route element={<RoleRoute allowedRoles={['evaluador']} />}>
             <Route path="/asignar-nino" element={<AsignarAcompanante />} />
+            <Route path="/ninoslist" element={<NinosList />} />
+            <Route path="/seleccion-mundo" element={<SeleccionMundos />}/>
+            
+            {/* Rutas del juego */}
+            <Route path="/nivel/cognados/:dificultad/:nivel" element={<NivelCognados />} />
+            <Route path="/nivel/pares-minimos/:dificultad/:nivel" element={<NivelParesMinimos />} />
+            <Route path="/encuesta" element={<Encuesta />} />
           </Route>
         </Route>
         
