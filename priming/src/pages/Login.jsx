@@ -1,23 +1,25 @@
+// src/pages/Login.jsx
+
 import { useState, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import styled from "styled-components";
 import {
-    GlobalStyle,
-    Container,
-    FormContainer,
-    Input,
-    Button,
-    H1,
-    Label
+  GlobalStyle,
+  Container,
+  FormContainer,
+  Input,
+  Button,
+  H1,
+  Label
 } from '../styles/styles';
 import { FaEye, FaEyeSlash, FaExclamationTriangle } from 'react-icons/fa';
 
 // Estilos existentes
 export const PasswordInput = styled(Input)`
   padding-right: 40px;
-  border: ${props => props.error ? '1px solidrgb(255, 255, 255)' : '1px solid #ddd'};
+  border: ${props => props.error ? '1px solid #fff' : '1px solid #ddd'};
 `;
 
 export const InputContainer = styled.div`
@@ -54,7 +56,7 @@ export const ErrorMessage = styled.div`
   left: 0;
   top: 100%;
   width: 100%;
-  color: #ffffff;
+  color: #fff;
   font-size: 0.8rem;
   margin-top: 0.25rem;
   display: flex;
@@ -65,15 +67,15 @@ export const ErrorIcon = styled.span`
   margin-right: 5px;
   display: inline-flex;
   align-items: center;
-  color:rgb(255, 255, 255);
+  color: #fff;
 `;
 
 export const StyledInput = styled(Input)`
-  border: ${props => props.error ? '1px solidrgb(255, 255, 255)' : '1px solid #ddd'};
+  border: ${props => props.error ? '1px solid #fff' : '1px solid #ddd'};
 `;
 
 export const RegisterLink = styled(Link)`
-  color:rgb(255, 255, 255);
+  color: #fff;
   text-decoration: none;
   font-weight: bold;
   
@@ -83,159 +85,134 @@ export const RegisterLink = styled(Link)`
 `;
 
 const Login = () => {
-    const { login } = useContext(AuthContext);
-    const navigate = useNavigate();
-    const [formData, setFormData] = useState({ correo_electronico: "", contrasena: "" });
-    const [showPassword, setShowPassword] = useState(false);
-    const [errors, setErrors] = useState({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const { login } = useContext(AuthContext);
+  const navigate    = useNavigate();
+  const [formData, setFormData] = useState({ correo_electronico: "", contrasena: "" });
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-        
-        // Limpiar error cuando el usuario empieza a escribir
-        if (errors[name]) {
-            setErrors(prev => {
-                const newErrors = {...prev};
-                delete newErrors[name];
-                return newErrors;
-            });
-        }
-    };
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors(prev => {
+        const n = { ...prev };
+        delete n[name];
+        return n;
+      });
+    }
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        
-        // Validación básica
-        const newErrors = {};
-        if (!formData.correo_electronico) {
-            newErrors.correo_electronico = "El correo electrónico es obligatorio";
+  const handleSubmit = async e => {
+    e.preventDefault();
+    // Validación básica
+    const newErrors = {};
+    if (!formData.correo_electronico) newErrors.correo_electronico = "El correo electrónico es obligatorio";
+    if (!formData.contrasena)          newErrors.contrasena = "La contraseña es obligatoria";
+    if (Object.keys(newErrors).length) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const apiUrl = `${import.meta.env.VITE_API_URL}/login`;
+      const response = await axios.post(apiUrl, formData);
+
+      if (response.data.token && response.data.user) {
+        // Guardar token y user en el contexto
+        login(response.data.token, response.data.user);
+
+        // Redirección basada en tipo_usuario (minúsculas)
+        const rol = response.data.user.tipo_usuario.toLowerCase();
+        if (rol === 'evaluador') {
+          navigate("/asignar-nino");
+        } else if (rol === 'niño') {
+          navigate("/juegos");
+        } else if (rol === 'administrador') {
+          navigate("/admin/crear-usuario");
+        } else {
+          navigate("/perfil");
         }
-        
-        if (!formData.contrasena) {
-            newErrors.contrasena = "La contraseña es obligatoria";
-        }
-        
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-            return;
-        }
-        
-        setIsSubmitting(true);
-        
-        try {
-            console.log("Iniciando solicitud de login");
-            const apiUrl = `${import.meta.env.VITE_API_URL}/login`;
-            console.log("URL de la API:", apiUrl);
+      } else {
+        throw new Error("Respuesta inválida del servidor");
+      }
+    } catch (err) {
+      console.error("Error en inicio de sesión:", err);
+      setErrors({
+        general: err.response?.data?.error || "Error al iniciar sesión. Intenta nuevamente."
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const togglePasswordVisibility = () => setShowPassword(prev => !prev);
+
+  return (
+    <>
+      <GlobalStyle />
+      <Container>
+        <FormContainer>
+          <H1>PRIMING</H1>
+          <form onSubmit={handleSubmit}>
+            <InputContainer hasError={!!errors.correo_electronico}>
+              <StyledInput 
+                type="email" 
+                name="correo_electronico" 
+                placeholder="Correo electrónico" 
+                value={formData.correo_electronico}
+                onChange={handleChange}
+                error={!!errors.correo_electronico}
+              />
+              {errors.correo_electronico && (
+                <ErrorMessage>
+                  <ErrorIcon><FaExclamationTriangle /></ErrorIcon>
+                  {errors.correo_electronico}
+                </ErrorMessage>
+              )}
+            </InputContainer>
             
-            const response = await axios.post(apiUrl, formData);
-            console.log("Respuesta recibida:", response.data);
+            <PasswordContainer hasError={!!errors.contrasena}>
+              <PasswordInput
+                type={showPassword ? "text" : "password"}
+                name="contrasena"
+                placeholder="Contraseña"
+                value={formData.contrasena}
+                onChange={handleChange}
+                error={!!errors.contrasena}
+              />
+              <PasswordToggle type="button" onClick={togglePasswordVisibility}>
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </PasswordToggle>
+              {errors.contrasena && (
+                <ErrorMessage>
+                  <ErrorIcon><FaExclamationTriangle /></ErrorIcon>
+                  {errors.contrasena}
+                </ErrorMessage>
+              )}
+            </PasswordContainer>
             
-            if (response.data && response.data.token) {
-                // Guardar en localStorage (opcional, depende de tu implementación)
-                localStorage.setItem('token', response.data.token);
-                
-                // Usar la función de login del contexto
-                login(response.data.token, response.data.user);
-                
-                // Redirección basada en el tipo de usuario
-                if (response.data.user.tipo_usuario === 'evaluador') {
-                    navigate("/asignar-nino");
-                } else if (response.data.user.tipo_usuario === 'niño') {
-                    navigate("/juegos");
-                } else if (response.data.user.tipo_usuario === 'admin') {
-                    navigate("/usuarios");
-                } else {
-                    navigate("/");
-                }
-            } else {
-                throw new Error("Respuesta inválida del servidor");
-            }
-        } catch (error) {
-            console.error("Error en inicio de sesión:", error);
+            {errors.general && (
+              <div style={{ color: '#fff', marginBottom: '1rem', textAlign: 'center' }}>
+                <FaExclamationTriangle style={{ marginRight: '5px' }} />
+                {errors.general}
+              </div>
+            )}
             
-            // Manejar errores de forma simple
-            setErrors({
-                general: error.response?.data?.error || "Error al iniciar sesión. Intenta nuevamente."
-            });
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Iniciando sesión..." : "Iniciar Sesión"}
+            </Button>
+          </form>
 
-    const togglePasswordVisibility = () => {
-        setShowPassword(!showPassword);
-    };
-
-    return (
-        <>
-        <GlobalStyle />
-        <Container>
-            <FormContainer>
-                <H1>PRIMING</H1>
-                <form onSubmit={handleSubmit}>
-                    <InputContainer hasError={!!errors.correo_electronico}>
-                        <StyledInput 
-                            type="email" 
-                            name="correo_electronico" 
-                            placeholder="Correo" 
-                            onChange={handleChange}
-                            value={formData.correo_electronico}
-                            error={!!errors.correo_electronico}
-                        />
-                        {errors.correo_electronico && (
-                            <ErrorMessage>
-                                <ErrorIcon><FaExclamationTriangle /></ErrorIcon>
-                                {errors.correo_electronico}
-                            </ErrorMessage>
-                        )}
-                    </InputContainer>
-                    
-                    <PasswordContainer hasError={!!errors.contrasena}>
-                        <PasswordInput
-                            type={showPassword ? "text" : "password"}
-                            name="contrasena"
-                            placeholder="Contraseña"
-                            value={formData.contrasena}
-                            onChange={handleChange}
-                            error={!!errors.contrasena}
-                        />
-                        <PasswordToggle 
-                            onClick={togglePasswordVisibility}
-                            type="button"
-                        >
-                            {showPassword ? <FaEyeSlash /> : <FaEye />}
-                        </PasswordToggle>
-                        
-                        {errors.contrasena && (
-                            <ErrorMessage>
-                                <ErrorIcon><FaExclamationTriangle /></ErrorIcon>
-                                {errors.contrasena}
-                            </ErrorMessage>
-                        )}
-                    </PasswordContainer>
-                    
-                    {errors.general && (
-                        <div style={{ color: 'rgb(255, 255, 255)', marginBottom: '1rem', textAlign: 'center' }}>
-                            <FaExclamationTriangle style={{ marginRight: '5px' }} />
-                            {errors.general}
-                        </div>
-                    )}
-                    
-                    <Button 
-                        type="submit" 
-                        disabled={isSubmitting}
-                    >
-                        {isSubmitting ? "Iniciando sesión..." : "Iniciar Sesión"}
-                    </Button>
-                </form>
-                
-                <Label>¿No tienes una cuenta? <RegisterLink to="/registro">REGISTRATE</RegisterLink></Label>
-            </FormContainer>
-        </Container>
-        </>
-    );
+          <Label>
+            ¿No tienes una cuenta? <RegisterLink to="/registro">Regístrate</RegisterLink>
+          </Label>
+        </FormContainer>
+      </Container>
+    </>
+  );
 };
 
 export default Login;
